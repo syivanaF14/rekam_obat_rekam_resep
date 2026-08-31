@@ -121,9 +121,38 @@ $isEdit = $resep !== null;
     </div>
 </form>
 
-<script>
-    var obatList = <?= json_encode($obat) ?>;
-    var rowIndex = 0;
+<?php
+// =====================================================================
+// Bagian JavaScript dipindah ke footer (setelah jQuery di-load)
+// supaya tidak error "$ is not defined". Disusun lewat $inlineScript.
+// =====================================================================
+$scriptRows = '';
+if ($isEdit) {
+    foreach ($detail as $d) {
+        $scriptRows .= "addRow(" . (int) $d['obat_id'] . ", " . (int) $d['jumlah'] . ", "
+            . json_encode($d['dosis'] ?? '') . ", " . json_encode($d['aturan_pakai'] ?? '') . ");\n";
+    }
+} else {
+    $oldObat = old('obat_id');
+    if ($oldObat) {
+        $oldJumlah = old('jumlah') ?: [];
+        $oldDosis  = old('dosis') ?: [];
+        $oldAturan = old('aturan_pakai') ?: [];
+        foreach ($oldObat as $i => $oid) {
+            if ((int) $oid > 0) {
+                $scriptRows .= "addRow(" . (int) $oid . ", " . (int) ($oldJumlah[$i] ?? 0) . ", "
+                    . json_encode($oldDosis[$i] ?? '') . ", " . json_encode($oldAturan[$i] ?? '') . ");\n";
+            }
+        }
+    }
+    if ($scriptRows === '') {
+        $scriptRows = "addRow(null, null, null, null);\n";
+    }
+}
+
+$obatJson = json_encode($obat);
+$inlineScript = <<<EOS
+    var obatList = {$obatJson};
 
     function obatOptions(selectedId) {
         var html = '';
@@ -136,7 +165,7 @@ $isEdit = $resep !== null;
     }
 
     function addRow(obatId, jumlah, dosis, aturan) {
-        var tr = $('<tr>');
+        var tr = \$('<tr>');
         tr.html(
             '<td>' +
                 '<select name="obat_id[]" class="form-select">' +
@@ -152,7 +181,7 @@ $isEdit = $resep !== null;
             '</td>'
         );
         tr.find('select').on('change', function () {
-            var opt = $(this).find(':selected');
+            var opt = \$(this).find(':selected');
             var stok = opt.data('stok');
             tr.find('.stok-info').text('Stok tersedia: ' + (stok !== undefined ? stok : '-'));
             tr.find('input[name="jumlah[]"]').attr('max', stok !== undefined ? stok : '');
@@ -160,38 +189,19 @@ $isEdit = $resep !== null;
         tr.find('.btn-hapus-baris').on('click', function () {
             tr.remove();
         });
-        $('#detail-rows').append(tr);
+        \$('#detail-rows').append(tr);
 
         if (obatId) {
             tr.find('select').trigger('change');
         }
     }
 
-    $('#btn-tambah-obat').on('click', function () {
-        addRow(null, null, null, null);
-    });
+    \$(document).ready(function () {
+        \$('#btn-tambah-obat').on('click', function () {
+            addRow(null, null, null, null);
+        });
+{$scriptRows}    });
+EOS;
+?>
 
-    $(document).ready(function () {
-        <?php if ($isEdit): ?>
-            <?php foreach ($detail as $d): ?>
-                addRow(<?= (int) $d['obat_id'] ?>, <?= (int) $d['jumlah'] ?>,
-                    <?= json_encode($d['dosis'] ?? '') ?>, <?= json_encode($d['aturan_pakai'] ?? '') ?>);
-            <?php endforeach; ?>
-        <?php else: ?>
-            <?php $oldObat = old('obat_id'); ?>
-            <?php if ($oldObat): ?>
-                <?php $oldJumlah = old('jumlah') ?: []; $oldDosis = old('dosis') ?: []; $oldAturan = old('aturan_pakai') ?: []; ?>
-                <?php foreach ($oldObat as $i => $oid): ?>
-                    <?php if ((int) $oid > 0): ?>
-                        addRow(<?= (int) $oid ?>, <?= (int) ($oldJumlah[$i] ?? 0) ?>,
-                            <?= json_encode($oldDosis[$i] ?? '') ?>, <?= json_encode($oldAturan[$i] ?? '') ?>);
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            <?php else: ?>
-                addRow(null, null, null, null);
-            <?php endif; ?>
-        <?php endif; ?>
-    });
-</script>
-
-<?= view('layouts/footer') ?>
+<?= view('layouts/footer', ['inlineScript' => $inlineScript]) ?>

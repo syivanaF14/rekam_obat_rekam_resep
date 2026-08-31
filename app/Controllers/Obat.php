@@ -107,16 +107,16 @@ class Obat extends BaseController
             'periode_stok'    => 'required|max_length[10]',
             'stok_awal'       => 'required|integer|greater_than_equal_to[0]',
             'stok_masuk'      => 'required|integer|greater_than_equal_to[0]',
-            'stok_keluar'     => 'required|integer|greater_than_equal_to[0]',
+            'stok_keluar'     => 'permit_empty|integer|greater_than_equal_to[0]',
             'tanggal_expired' => 'required|valid_date',
         ];
     }
 
     private function collectData(): array
     {
-        $stokAwal  = (int) $this->request->getPost('stok_awal');
-        $stokMasuk = (int) $this->request->getPost('stok_masuk');
-        $stokKeluar = (int) $this->request->getPost('stok_keluar');
+        $stokAwal   = (int) $this->request->getPost('stok_awal');
+        $stokMasuk  = (int) $this->request->getPost('stok_masuk');
+        $stokKeluar = (int) ($this->request->getPost('stok_keluar') ?: 0);
 
         return [
             'nama_obat'       => $this->request->getPost('nama_obat'),

@@ -52,8 +52,8 @@ $isEdit = $obat !== null;
                            value="<?= esc($isEdit ? $obat['stok_masuk'] : old('stok_masuk')) ?>">
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Stok Keluar <span class="text-danger">*</span></label>
-                    <input type="number" name="stok_keluar" id="stok_keluar" class="form-control" min="0" required
+                    <label class="form-label">Stok Keluar <small class="text-muted">(opsional)</small></label>
+                    <input type="number" name="stok_keluar" id="stok_keluar" class="form-control" min="0"
                            value="<?= esc($isEdit ? $obat['stok_keluar'] : old('stok_keluar')) ?>">
                 </div>
 
@@ -79,15 +79,19 @@ $isEdit = $obat !== null;
     </div>
 </div>
 
-<script>
+<?php
+$inlineScript = "
     function hitungStokAkhir() {
-        var awal = parseInt($('#stok_awal').val()) || 0;
-        var masuk = parseInt($('#stok_masuk').val()) || 0;
-        var keluar = parseInt($('#stok_keluar').val()) || 0;
-        $('#stok_akhir').val(awal + masuk - keluar);
+        var awal = parseInt(\$('#stok_awal').val()) || 0;
+        var masuk = parseInt(\$('#stok_masuk').val()) || 0;
+        var keluar = parseInt(\$('#stok_keluar').val()) || 0;
+        \$('#stok_akhir').val(awal + masuk - keluar);
     }
+    \$(document).ready(function(){
+        hitungStokAkhir();
+        \$('#stok_awal, #stok_masuk, #stok_keluar').on('input', hitungStokAkhir);
+    });
+";
+?>
 
-    $('#stok_awal, #stok_masuk, #stok_keluar').on('input', hitungStokAkhir);
-</script>
-
-<?= view('layouts/footer') ?>
+<?= view('layouts/footer', ['inlineScript' => $inlineScript]) ?>
