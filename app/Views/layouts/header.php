@@ -33,8 +33,16 @@
             font-size: 1.05rem;
             padding: 18px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, .25);
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             text-decoration: none;
+        }
+        .sidebar .brand-logo {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            border-radius: 6px;
         }
         .sidebar .nav-link {
             color: rgba(255, 255, 255, .85);
@@ -95,7 +103,8 @@
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <a href="<?= site_url('dashboard') ?>" class="brand">
-            <i class="fa-solid fa-pills me-2"></i>Klinik Al-Abina
+            <img src="<?= base_url('assets/images/logo.png') ?>" alt="Logo" class="brand-logo">
+            <span>Klinik Al-Abina</span>
         </a>
         <nav class="nav flex-column mt-2">
             <?php if (session()->get('role') === 'resepsionis'): ?>

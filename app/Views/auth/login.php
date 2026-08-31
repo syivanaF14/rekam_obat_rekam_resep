@@ -21,14 +21,19 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
         }
+        .login-logo {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body>
 <div class="card card-login">
     <div class="card-body p-4">
         <div class="text-center mb-4">
-            <i class="fa-solid fa-pills fa-3x text-primary"></i>
-            <h4 class="mt-2 mb-0">Aplikasi Rekam Obat</h4>
+            <img src="<?= base_url('assets/images/logo.png') ?>" alt="Logo" class="login-logo">
+            <h4 class="mt-3 mb-0">Aplikasi Rekam Obat</h4>
             <small class="text-muted">Rekam Obat &amp; Rekam Resep</small>
         </div>
 
